@@ -138,6 +138,13 @@ namespace CabbageCrow.AssemblyPublicizer
 			var allTypes = GetAllTypes(assembly.MainModule);
 			var allMethods = allTypes.SelectMany(t => t.Methods);
 			var allFields = allTypes.SelectMany(t => t.Fields);
+			var allEvents = allTypes.SelectMany(x => x.Events);
+			var eventNames = new List<string>();
+
+			foreach (var ev in allEvents)
+			{
+				eventNames.Add(ev.Name);
+			}
 
 			int count;
 			string reportString = "Changed {0} {1} to public.";
@@ -147,7 +154,7 @@ namespace CabbageCrow.AssemblyPublicizer
 			count = 0;
 			foreach (var type in allTypes)
 			{
-				if (!type?.IsPublic ?? false && !type.IsNestedPublic)
+				if (type != null && (!type.IsPublic || !type.IsNestedPublic))
 				{
 					count++;
 					if (type.IsNested)
@@ -161,7 +168,7 @@ namespace CabbageCrow.AssemblyPublicizer
 			count = 0;
 			foreach (var method in allMethods)
 			{
-				if (!method?.IsPublic ?? false)
+				if (method != null && !method.IsPublic)
 				{
 					count++;
 					method.IsPublic = true;
@@ -172,7 +179,7 @@ namespace CabbageCrow.AssemblyPublicizer
 			count = 0;
 			foreach (var field in allFields)
 			{
-				if (!field?.IsPublic ?? false)
+				if (field != null && !field.IsPublic && !eventNames.Contains(field.Name))
 				{
 					count++;
 					field.IsPublic = true;
